@@ -1,0 +1,19 @@
+- name: Collect log files from Control Node
+  hosts: controlnode
+  gather_facts: no
+  tasks:
+    - name: Find all .log files
+      find:
+        paths: "/var/log"
+        patterns: "*.log"
+        recurse: yes
+      register: log_files
+
+    - name: Fetch each log file
+      ansible.builtin.fetch:
+        src: "{{ item.path }}"
+        dest: "~/hoa7/logs"
+        flat: yes
+        remote_src: yes
+      with_items: "{{ log_files.files }}"
+      become: yes
